@@ -6,7 +6,7 @@ FROM gcc:13-bookworm AS cpp-builder
 WORKDIR /build
 
 # Copy only the C++ source trees needed for compilation.
-COPY ../cpp_solver ./cpp_solver
+COPY cpp_solver ./cpp_solver
 COPY backend/solvers/cpp_adapters ./backend/solvers/cpp_adapters
 COPY backend/solvers/build_cpp_solvers.sh ./backend/solvers/build_cpp_solvers.sh
 
