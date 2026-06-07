@@ -18,14 +18,17 @@ RUN bash app/backend/solvers/build_cpp_solvers.sh
 # ──────────────────────────────────────────────────────
 FROM python:3.12-slim-bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends libstdc++6 \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libstdc++6 gcc python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Copy the backend requirements and install them
 COPY app/backend/requirements.txt ./backend/
-RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt \
+    # Clean up build dependencies to keep the image slim
+    && apt-get purge -y --auto-remove gcc python3-dev
 
 # Copy the rest of the backend code
 COPY app/backend/ ./backend/
