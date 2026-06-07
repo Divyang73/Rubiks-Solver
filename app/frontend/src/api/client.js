@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || ''
+const BASE_URL = const API_BASE_URL = 'https://YOUR_RENDER_APP_NAME.onrender.com'
+
 
 const http = axios.create({
   baseURL: BASE_URL,
