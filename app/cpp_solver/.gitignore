@@ -1,0 +1,8 @@
+build/
+RubiksCubeSolver.exe
+*.user
+*.suo
+*.vcxproj
+*.log
+*.tmp
+.DS_Store

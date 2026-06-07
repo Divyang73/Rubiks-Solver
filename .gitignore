@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+env/
+
+# Node
+node_modules/
+dist/
+
+# Env files
+.env
+
+# C++ compiled solver binaries (built locally via build_cpp_solvers.sh)
+app/backend/solvers/cpp_executables/bfs_solver
+app/backend/solvers/cpp_executables/dfs_solver
+app/backend/solvers/cpp_executables/idastar_solver
+app/backend/solvers/cpp_executables/iddfs_solver
+app/backend/solvers/cpp_executables/Database/
