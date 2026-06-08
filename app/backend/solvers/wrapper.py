@@ -178,14 +178,9 @@ class CppSolverWrapper:
             # Read stderr line-by-line for PROGRESS messages.
             assert proc.stderr is not None
             assert proc.stdout is not None
-
-            async def _consume_stream():
-                async for progress in _read_progress():
-                    yield {"type": "progress", **progress}
-
-            # Use asyncio.wait_for to bound the stream reading
-            # Note: We must consume it manually since we can't yield from inside wait_for directly.
             
+            last_error_line = ""
+
             start_time = asyncio.get_running_loop().time()
             while True:
                 remaining = timeout - (asyncio.get_running_loop().time() - start_time)
@@ -201,6 +196,8 @@ class CppSolverWrapper:
                     text = line.decode().strip()
                     if text.startswith("PROGRESS:"):
                         yield {"type": "progress", **_parse_progress_line(text)}
+                    elif text:
+                        last_error_line = text
                 except asyncio.TimeoutError:
                     raise
 
@@ -216,7 +213,7 @@ class CppSolverWrapper:
                 yield {
                     "type": "result",
                     "success": False,
-                    "error": "C++ solver failed",
+                    "error": f"C++ solver failed: {last_error_line}",
                 }
                 return
 
