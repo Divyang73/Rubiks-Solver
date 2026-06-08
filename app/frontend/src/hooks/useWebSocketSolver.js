@@ -31,8 +31,7 @@ export default function useWebSocketSolver() {
       // Determine WebSocket URL
       let wsUrl = import.meta.env.VITE_WS_URL
       if (!wsUrl) {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        wsUrl = `${protocol}//${window.location.host}/ws/solve`
+        wsUrl = 'wss://rubiks-solver-hwoi.onrender.com/ws/solve'
       }
 
       const ws = new WebSocket(wsUrl)
