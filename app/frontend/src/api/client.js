@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = const API_BASE_URL = 'https://YOUR_RENDER_APP_NAME.onrender.com'
+const BASE_URL = const API_BASE_URL = 'https://rubiks-solver-hwoi.onrender.com'
 
 
 const http = axios.create({
