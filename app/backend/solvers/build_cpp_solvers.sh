@@ -10,7 +10,7 @@ CPP_REPO_DIR="$ROOT_DIR/app/cpp_solver"
 mkdir -p "$OUT_DIR/Database"
 
 CXX=${CXX:-g++}
-CXXFLAGS=(-std=c++17 -O2 -pipe)
+CXXFLAGS=(-std=c++17 -O2 -pipe -static-libstdc++ -static-libgcc)
 
 "$CXX" "${CXXFLAGS[@]}" "$ADAPTER_DIR/bfs_main.cpp" -o "$OUT_DIR/bfs_solver"
 "$CXX" "${CXXFLAGS[@]}" "$ADAPTER_DIR/dfs_main.cpp" -o "$OUT_DIR/dfs_solver"
