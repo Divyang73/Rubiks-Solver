@@ -19,11 +19,32 @@ class AlgorithmType(str, Enum):
 
 
 DEFAULT_TIMEOUTS = {
-    AlgorithmType.BFS: 120,
-    AlgorithmType.DFS: 120,
-    AlgorithmType.IDDFS: 120,
-    AlgorithmType.IDASTAR: 120,
+    AlgorithmType.BFS: 60,
+    AlgorithmType.DFS: 60,
+    AlgorithmType.IDDFS: 60,
+    AlgorithmType.IDASTAR: 60,
 }
+
+import collections
+
+class SimpleLRUCache:
+    def __init__(self, capacity: int = 1000):
+        self.cache = collections.OrderedDict()
+        self.capacity = capacity
+
+    def get(self, key):
+        if key not in self.cache:
+            return None
+        self.cache.move_to_end(key)
+        return self.cache[key]
+
+    def put(self, key, value):
+        self.cache[key] = value
+        self.cache.move_to_end(key)
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)
+
+SOLVE_CACHE = SimpleLRUCache(1000)
 
 
 class CppSolverWrapper:
@@ -62,6 +83,13 @@ class CppSolverWrapper:
                 "solver_backend": "cpp-korf-repo",
             }
 
+        cache_key = (cube_state, algorithm.value)
+        cached_result = SOLVE_CACHE.get(cache_key)
+        if cached_result:
+            result = dict(cached_result)
+            result["cached"] = True
+            return result
+
         solver_path = self.solvers[algorithm]
         if not (os.path.exists(solver_path) and os.access(solver_path, os.X_OK)):
             return {
@@ -97,7 +125,11 @@ class CppSolverWrapper:
             )
             if result.returncode != 0:
                 return {"success": False, "error": result.stderr.strip() or "C++ solver failed"}
-            return self._parse_cpp_output(result.stdout, algorithm)
+            
+            parsed_result = self._parse_cpp_output(result.stdout, algorithm)
+            if parsed_result.get("success"):
+                SOLVE_CACHE.put((cube_state, algorithm.value), parsed_result)
+            return parsed_result
         except subprocess.TimeoutExpired:
             return {
                 "success": False,
@@ -142,6 +174,14 @@ class CppSolverWrapper:
                 "algorithm": algorithm.value,
                 "solver_backend": "cpp-korf-repo",
             }
+            return
+
+        cache_key = (cube_state, algorithm.value)
+        cached_result = SOLVE_CACHE.get(cache_key)
+        if cached_result:
+            result = dict(cached_result)
+            result["cached"] = True
+            yield {"type": "result", **result}
             return
 
         solver_path = self.solvers[algorithm]
@@ -218,6 +258,8 @@ class CppSolverWrapper:
                 return
 
             parsed = self._parse_cpp_output(stdout_text, algorithm)
+            if parsed.get("success"):
+                SOLVE_CACHE.put((cube_state, algorithm.value), parsed)
             yield {"type": "result", **parsed}
 
         except asyncio.TimeoutError:

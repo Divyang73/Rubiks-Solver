@@ -7,6 +7,7 @@ export default function useWebSocketSolver() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
   const wsRef = useRef(null)
+  const lastUpdateRef = useRef(0)
 
   const cleanup = useCallback(() => {
     if (wsRef.current) {
@@ -27,6 +28,7 @@ export default function useWebSocketSolver() {
       setProgressLog([])
       setResult(null)
       setError(null)
+      lastUpdateRef.current = 0
 
       // Determine WebSocket URL
       let wsUrl = import.meta.env.VITE_WS_URL
@@ -52,10 +54,14 @@ export default function useWebSocketSolver() {
         try {
           const data = JSON.parse(event.data)
           if (data.type === 'progress') {
-            setProgressLog((prev) => [
-              ...prev,
-              { id: Date.now() + Math.random(), message: data.message }
-            ])
+            const now = Date.now()
+            if (now - lastUpdateRef.current > 100) {
+              setProgressLog((prev) => [
+                ...prev,
+                { id: Date.now() + Math.random(), message: data.message }
+              ])
+              lastUpdateRef.current = now
+            }
           } else if (data.type === 'result') {
             if (data.success) {
               setResult(data)
